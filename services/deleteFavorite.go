@@ -6,7 +6,7 @@ import (
 	"github.com/valp0/go-aws-pg/repo"
 )
 
-func DeleteFavorite(userId, vidId string) ([]repo.Favorite, error) {
+func (s service) DeleteFavorite(userId, vidId string) ([]repo.Favorite, error) {
 	if !validateUserId(userId) {
 		return nil, fmt.Errorf("id can only have between 5 and 12 characters and can only contain letters, numbers and underscores")
 	}
@@ -15,5 +15,9 @@ func DeleteFavorite(userId, vidId string) ([]repo.Favorite, error) {
 		return nil, fmt.Errorf("id can only contain letters, numbers, dashes and underscores, and must be 11 characters long")
 	}
 
-	return repo.DeleteFavorite(userId, vidId)
+	if err := s.r.DeleteFavorite(userId, vidId); err != nil {
+		return nil, err
+	}
+
+	return s.r.GetFavorites(userId)
 }

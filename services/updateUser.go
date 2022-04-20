@@ -8,7 +8,7 @@ import (
 )
 
 // UpdateUser will update the user with received id using received data.
-func UpdateUser(id string, decoder *json.Decoder) ([]repo.User, error) {
+func (s service) UpdateUser(id string, decoder *json.Decoder) ([]repo.User, error) {
 	var user repo.User
 
 	if !validateUserId(id) {
@@ -24,5 +24,5 @@ func UpdateUser(id string, decoder *json.Decoder) ([]repo.User, error) {
 		return nil, fmt.Errorf("couldn't decode user data from the request body, body is empty")
 	}
 
-	return repo.UpdateUser(id, user)
+	return s.r.UpdateUser(id, user)
 }

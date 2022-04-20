@@ -1,11 +1,7 @@
 package services
 
-import (
-	"github.com/valp0/go-aws-pg/repo"
-)
-
-func Ping() (string, error) {
-	err := repo.Ping()
+func (s service) Ping() (string, error) {
+	err := s.r.Ping()
 	if err != nil {
 		return "", err
 	}

@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
@@ -9,11 +8,11 @@ import (
 )
 
 // Helper function that gets all favorites of a user, given its id.
-func getFavorites(db *sql.DB, id string) ([]Favorite, error) {
+func (r repository) getFavorites(id string) ([]Favorite, error) {
 	favs := []Favorite{}
 	sqlStatement := `SELECT f.* FROM user_favs uf JOIN favorites f ON uf.fav_id = f.id WHERE uf.user_id = $1;`
 
-	rows, _ := db.Query(sqlStatement, id)
+	rows, _ := r.db.Query(sqlStatement, id)
 	defer rows.Close()
 
 	for rows.Next() {
@@ -30,10 +29,10 @@ func getFavorites(db *sql.DB, id string) ([]Favorite, error) {
 }
 
 // An auxiliary repo function to insert a video safely into the favorites table.
-func insertToFavs(db *sql.DB, fav Favorite) error {
+func (r repository) insertToFavs(fav Favorite) error {
 	insertStatement := `INSERT INTO Favorites (id, description, thumbnail, title) VALUES ($1, $2, $3, $4);`
 
-	_, err := db.Exec(insertStatement, fav.ID, fav.Description, fav.Thumbnail, fav.Title)
+	_, err := r.db.Exec(insertStatement, fav.ID, fav.Description, fav.Thumbnail, fav.Title)
 	if err != nil {
 		return fmt.Errorf("couldn't insert favorite with id %s, %v", fav.ID, err)
 	}
@@ -43,10 +42,10 @@ func insertToFavs(db *sql.DB, fav Favorite) error {
 }
 
 // An auxiliary repo function to insert a user-favorite relation safely into the user_favs table.
-func insertToUserFavs(db *sql.DB, userId, favId string) error {
+func (r repository) insertToUserFavs(userId, favId string) error {
 	insertStatement := `INSERT INTO user_favs (user_id, fav_id) VALUES ($1, $2);`
 
-	_, err := db.Exec(insertStatement, userId, favId)
+	_, err := r.db.Exec(insertStatement, userId, favId)
 	if err != nil {
 		return fmt.Errorf("couldn't insert favorite with id %s to user with id %s, %v", favId, userId, err)
 	}
@@ -56,11 +55,11 @@ func insertToUserFavs(db *sql.DB, userId, favId string) error {
 }
 
 // An auxiliary repo function to get a specific video from the favorites table, given its id.
-func getFav(db *sql.DB, id string) (Favorite, error) {
+func (r repository) getFav(id string) (Favorite, error) {
 	var fav Favorite
 	selectStatement := `SELECT * FROM Favorites WHERE id = $1;`
 
-	err := db.QueryRow(selectStatement, id).Scan(&fav.ID, &fav.Description, &fav.Thumbnail, &fav.Title)
+	err := r.db.QueryRow(selectStatement, id).Scan(&fav.ID, &fav.Description, &fav.Thumbnail, &fav.Title)
 	if err != nil {
 		return Favorite{}, fmt.Errorf("video with id %s could not be fetched, %s", id, err.Error())
 	}
@@ -69,27 +68,27 @@ func getFav(db *sql.DB, id string) (Favorite, error) {
 }
 
 // Checks a favorite is not already present in the table to avoid duplicity.
-func alreadyInFavs(db *sql.DB, id string) bool {
+func (r repository) alreadyInFavs(id string) bool {
 	sqlStatement := `SELECT * FROM Favorites WHERE id = $1;`
 	var fav Favorite
 
-	err := db.QueryRow(sqlStatement, id).Scan(&fav.ID, &fav.Description, &fav.Thumbnail, &fav.Title)
+	err := r.db.QueryRow(sqlStatement, id).Scan(&fav.ID, &fav.Description, &fav.Thumbnail, &fav.Title)
 	return err == nil
 }
 
 // Checks a user favorite is not already present in the table to avoid duplicity.
-func alreadyInUserFavs(db *sql.DB, userId, favId string) bool {
+func (r repository) alreadyInUserFavs(userId, favId string) bool {
 	sqlStatement := `SELECT * FROM user_favs WHERE user_id = $1 AND fav_id = $2;`
 	var userFav UserFav
 
-	err := db.QueryRow(sqlStatement, userId, favId).Scan(&userFav.UserId, &userFav.FavId)
+	err := r.db.QueryRow(sqlStatement, userId, favId).Scan(&userFav.UserId, &userFav.FavId)
 	return err == nil
 }
 
 // Will delete every row in the user_favs table containing id as user_id.
-func deleteFavsFromUser(db *sql.DB, id string) error {
+func (r repository) deleteFavsFromUser(id string) error {
 	sqlStatement := `DELETE FROM user_favs WHERE user_id = $1;`
-	if _, err := db.Exec(sqlStatement, id); err != nil {
+	if _, err := r.db.Exec(sqlStatement, id); err != nil {
 		return err
 	}
 
@@ -97,10 +96,10 @@ func deleteFavsFromUser(db *sql.DB, id string) error {
 }
 
 // Deletes a user_favs row containing the provided user id and favorite id.
-func deleteUserFav(db *sql.DB, userId, favId string) error {
+func (r repository) deleteUserFav(userId, favId string) error {
 	deleteStatement := `DELETE FROM user_favs WHERE user_id = $1 AND fav_id = $2;`
 
-	result, err := db.Exec(deleteStatement, userId, favId)
+	result, err := r.db.Exec(deleteStatement, userId, favId)
 	if err != nil {
 		return fmt.Errorf("video with id %s  for user with id %s could not be removed from user_favs table, %s", favId, userId, err.Error())
 	}
@@ -109,20 +108,20 @@ func deleteUserFav(db *sql.DB, userId, favId string) error {
 		return fmt.Errorf("no rows were affected, probably user with id %s is not related to video with id %s", userId, favId)
 	}
 
-	cleanFavs(db)
+	r.cleanFavs()
 	return nil
 }
 
 // Deletes any row in the favorites table that isn't related to a user in the user_favs table.
-func cleanFavs(db *sql.DB) {
-	favs, err := getUnmatchedFavs(db)
+func (r repository) cleanFavs() {
+	favs, err := r.getUnmatchedFavs()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	for _, fav := range favs {
-		if err := deleteFromFavorites(db, fav.ID); err != nil {
+		if err := r.deleteFromFavorites(fav.ID); err != nil {
 			log.Println(err)
 			return
 		}
@@ -131,11 +130,11 @@ func cleanFavs(db *sql.DB) {
 }
 
 // Will return any video that is present in the favorites table but not in the user_favs table.
-func getUnmatchedFavs(db *sql.DB) ([]Favorite, error) {
+func (r repository) getUnmatchedFavs() ([]Favorite, error) {
 	sqlStatement := `SELECT f.* FROM favorites f LEFT JOIN user_favs uf ON f.id = uf.fav_id WHERE uf.user_id is NULL;`
 	favs := []Favorite{}
 
-	rows, err := db.Query(sqlStatement)
+	rows, err := r.db.Query(sqlStatement)
 	if err != nil {
 		return nil, err
 	}
@@ -153,9 +152,9 @@ func getUnmatchedFavs(db *sql.DB) ([]Favorite, error) {
 }
 
 // Deletes a row from Favorites table.
-func deleteFromFavorites(db *sql.DB, id string) error {
+func (r repository) deleteFromFavorites(id string) error {
 	sqlStatement := `DELETE FROM Favorites WHERE id = $1;`
 
-	_, err := db.Exec(sqlStatement, id)
+	_, err := r.db.Exec(sqlStatement, id)
 	return err
 }

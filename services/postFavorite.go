@@ -8,7 +8,7 @@ import (
 )
 
 // Will insert a user with the received data.
-func PostFavorite(userId string, decoder *json.Decoder) ([]repo.Favorite, error) {
+func (s service) PostFavorite(userId string, decoder *json.Decoder) ([]repo.Favorite, error) {
 	var fav repo.Favorite
 	err := decoder.Decode(&fav)
 	if err != nil {
@@ -23,5 +23,5 @@ func PostFavorite(userId string, decoder *json.Decoder) ([]repo.Favorite, error)
 		return nil, fmt.Errorf("video title can't be empty")
 	}
 
-	return repo.PostFavorite(userId, fav)
+	return s.r.PostFavorite(userId, fav)
 }

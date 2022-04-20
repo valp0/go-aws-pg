@@ -6,6 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.15.0 // direct
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.1.16 // direct
 	github.com/lib/pq v1.10.4 // direct
+	github.com/gorilla/mux v1.8.0 // direct
 )
 
 require (
@@ -19,5 +20,4 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.0 // indirect
 	github.com/aws/smithy-go v1.11.1 // indirect
-	github.com/gorilla/mux v1.8.0 // direct
 )

@@ -5,12 +5,7 @@ import (
 )
 
 // GetUsers is the repository function to get all users from the users table.
-func GetUsers() ([]User, error) {
-	db, err := connectDB()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
+func (r repository) GetUsers() ([]User, error) {
 
-	return getUsers(db)
+	return r.getUsers()
 }

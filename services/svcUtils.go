@@ -20,7 +20,7 @@ func validateVidId(id string) bool {
 	return regex.MatchString(id)
 }
 
-// Validates a user name. A user name can only contain letters, numbers and underscores, and must be between 5 and 12 characters long.
+// Validates a video title is not empty.
 func validateVidTitle(name string) bool {
 	return name != ""
 }

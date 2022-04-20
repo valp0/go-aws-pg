@@ -4,14 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/valp0/go-aws-pg/services"
 )
 
 // GetUser fetches a user by its id.
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func (h handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	user, err := services.GetUser(id)
+	user, err := h.s.GetUser(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		writeResponse(w, err.Error())

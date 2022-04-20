@@ -5,12 +5,7 @@ import (
 )
 
 // GetFavorites is the repository function that fetches the favorites of a user, given their id.
-func GetFavorites(id string) ([]Favorite, error) {
-	db, err := connectDB()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
+func (r repository) GetFavorites(id string) ([]Favorite, error) {
 
-	return getFavorites(db, id)
+	return r.getFavorites(id)
 }

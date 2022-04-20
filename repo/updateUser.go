@@ -6,14 +6,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func UpdateUser(id string, user User) ([]User, error) {
-	db, err := connectDB()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	if !alreadyInUsers(db, id) {
+func (r repository) UpdateUser(id string, user User) ([]User, error) {
+	if !r.alreadyInUsers(id) {
 		return nil, fmt.Errorf("id %s is not present in the users table", id)
 	}
 
@@ -21,12 +15,12 @@ func UpdateUser(id string, user User) ([]User, error) {
 		return nil, fmt.Errorf("user id cannot be modified")
 	}
 
-	if err = updateUser(db, id, user); err != nil {
+	if err := r.updateUser(id, user); err != nil {
 		return nil, err
 	}
 
 	user = User{}
-	user, err = getUser(db, id)
+	user, err := r.getUser(id)
 	if err != nil {
 		return nil, err
 	}

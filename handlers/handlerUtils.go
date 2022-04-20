@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -17,11 +16,14 @@ func writeResponse(w http.ResponseWriter, result interface{}) {
 	}
 
 	jResponse, _ := json.Marshal(response)
-	fmt.Fprintln(w, prettifyJson(jResponse))
+	header := w.Header()
+	log.Printf("%+v", header)
+	w.Write(jResponse)
+	// fmt.Fprintln(w, prettifyJson(jResponse))
 }
 
 // Prettifies a JSON byte array and returns a prettified JSON string.
-func prettifyJson(ugly []byte) string {
+/*func prettifyJson(ugly []byte) string {
 	var prettified bytes.Buffer
 	err := json.Indent(&prettified, ugly, "", "  ")
 	if err != nil {
@@ -29,4 +31,4 @@ func prettifyJson(ugly []byte) string {
 	}
 
 	return prettified.String()
-}
+}*/

@@ -5,12 +5,7 @@ import (
 )
 
 // Ping is the repo function that will issue a ping to the database and return an error if not successful.
-func Ping() error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
+func (r repository) Ping() error {
 
-	return db.Ping()
+	return r.db.Ping()
 }

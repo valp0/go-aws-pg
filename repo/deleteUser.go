@@ -5,21 +5,15 @@ import (
 )
 
 // DeleteUser will perform the necessary actions in order to safely remove a user from the database.
-func DeleteUser(id string) error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	if err := deleteFavsFromUser(db, id); err != nil {
+func (r repository) DeleteUser(id string) error {
+	if err := r.deleteFavsFromUser(id); err != nil {
 		return err
 	}
 
-	if err := deleteUser(db, id); err != nil {
+	if err := r.deleteUser(id); err != nil {
 		return err
 	}
 
-	cleanFavs(db)
+	r.cleanFavs()
 	return nil
 }

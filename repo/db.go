@@ -44,3 +44,8 @@ func connectDB() (*sql.DB, error) {
 
 	return db, nil
 }
+
+// Closes communication with db.
+func (r repository) CloseDB() error {
+	return r.db.Close()
+}

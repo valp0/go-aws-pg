@@ -8,7 +8,7 @@ import (
 )
 
 // Will insert a user with the received data.
-func PostUser(decoder *json.Decoder) ([]repo.User, error) {
+func (s service) PostUser(decoder *json.Decoder) ([]repo.User, error) {
 	var user repo.User
 	err := decoder.Decode(&user)
 	if err != nil {
@@ -27,5 +27,5 @@ func PostUser(decoder *json.Decoder) ([]repo.User, error) {
 		return nil, fmt.Errorf("user_name can only have between 5 and 12 characters and can only contain letters, numbers and underscores")
 	}
 
-	return repo.PostUser(user)
+	return s.r.PostUser(user)
 }
