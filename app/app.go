@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/valp0/go-aws-pg/handlers"
 	"github.com/valp0/go-aws-pg/repo"
 	"github.com/valp0/go-aws-pg/services"
@@ -22,28 +23,32 @@ const (
 func RunServer() error {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-	go logExit(c)
 
 	router := mux.NewRouter().StrictSlash(true)
+
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading the .env file: %v", err)
+	}
 
 	repo, err := repo.GetRepo()
 	if err != nil {
 		log.Fatal(err)
 	}
+	go logExit(c)
 
 	svc := services.NewService(repo)
-
 	handler := handlers.NewHandler(svc)
 
 	router.HandleFunc("/api/ping/", handler.Ping).Methods("GET")
-	router.HandleFunc("/api/users/", handler.GetUsers).Methods("GET")
-	router.HandleFunc("/api/users/", handler.PostUser).Methods("POST")
-	router.HandleFunc("/api/users/{id}/", handler.GetUser).Methods("GET")
-	router.HandleFunc("/api/users/{id}/", handler.UpdateUser).Methods("PATCH")
-	router.HandleFunc("/api/users/{id}/", handler.DeleteUser).Methods("DELETE")
-	router.HandleFunc("/api/users/{id}/favorites/", handler.GetFavorites).Methods("GET")
-	router.HandleFunc("/api/users/{id}/favorites/", handler.PostFavorite).Methods("POST")
-	router.HandleFunc("/api/users/{id}/favorites/{vidId}/", handler.DeleteFavorite).Methods("DELETE")
+	router.HandleFunc("/auth/get-token/", handler.GetToken).Methods("POST")
+	router.HandleFunc("/api/users/", checkToken(handler.GetUsers)).Methods("GET")
+	router.HandleFunc("/api/users/", checkToken(handler.PostUser)).Methods("POST")
+	router.HandleFunc("/api/users/{id}/", checkToken(handler.GetUser)).Methods("GET")
+	router.HandleFunc("/api/users/{id}/", checkToken(handler.UpdateUser)).Methods("PATCH")
+	router.HandleFunc("/api/users/{id}/", checkToken(handler.DeleteUser)).Methods("DELETE")
+	router.HandleFunc("/api/users/{id}/favorites/", checkToken(handler.GetFavorites)).Methods("GET")
+	router.HandleFunc("/api/users/{id}/favorites/", checkToken(handler.PostFavorite)).Methods("POST")
+	router.HandleFunc("/api/users/{id}/favorites/{vidId}/", checkToken(handler.DeleteFavorite)).Methods("DELETE")
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 
 	log.Printf("Listening on port %d\n", port)
@@ -63,4 +68,9 @@ func logExit(c chan os.Signal) {
 		fmt.Print("\r")
 		log.Fatal("Process terminated")
 	}
+}
+
+func checkToken(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+
+	return handlers.CheckToken()(http.HandlerFunc(f)).ServeHTTP
 }

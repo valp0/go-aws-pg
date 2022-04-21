@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -16,8 +15,6 @@ func writeResponse(w http.ResponseWriter, result interface{}) {
 	}
 
 	jResponse, _ := json.Marshal(response)
-	header := w.Header()
-	log.Printf("%+v", header)
 	w.Write(jResponse)
 	// fmt.Fprintln(w, prettifyJson(jResponse))
 }

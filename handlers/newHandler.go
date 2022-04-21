@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/valp0/go-aws-pg/repo"
+	"github.com/valp0/go-aws-pg/services"
 )
 
 type handler struct {
@@ -16,6 +17,7 @@ type svcHandler interface {
 	deleter
 	updater
 	pinger
+	tokener
 }
 
 type getter interface {
@@ -40,6 +42,10 @@ type poster interface {
 
 type pinger interface {
 	Ping() (string, error)
+}
+
+type tokener interface {
+	GetToken(*json.Decoder) (*services.Client, error)
 }
 
 func NewHandler(s svcHandler) handler {

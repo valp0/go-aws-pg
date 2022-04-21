@@ -4,14 +4,25 @@ import (
 	"encoding/json"
 	"net/http"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"github.com/gorilla/mux"
 )
 
 // UpdateUser is the handler to update users via a PATCH request.
 func (h handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
-
 	bodyDecoder := json.NewDecoder(r.Body)
+	w.Header().Set("Content-Type", "application/json")
+
+	token := r.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+
+	claims := token.CustomClaims.(*CustomClaims)
+	if !claims.HasScope("read:users") || !claims.HasScope("write:users") {
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"message":"Insufficient scope."}`))
+		return
+	}
 
 	user, err := h.s.UpdateUser(id, bodyDecoder)
 	if err != nil {
