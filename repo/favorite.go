@@ -28,7 +28,7 @@ func (r repository) getFavorites(id string) ([]Favorite, error) {
 	return favs, nil
 }
 
-// An auxiliary repo function to insert a video safely into the favorites table.
+// An auxiliary repo function to insert a video into the favorites table.
 func (r repository) insertToFavs(fav Favorite) error {
 	insertStatement := `INSERT INTO Favorites (id, description, thumbnail, title) VALUES ($1, $2, $3, $4);`
 
@@ -41,7 +41,7 @@ func (r repository) insertToFavs(fav Favorite) error {
 	return nil
 }
 
-// An auxiliary repo function to insert a user-favorite relation safely into the user_favs table.
+// An auxiliary repo function to insert a user-favorite relation into the user_favs table.
 func (r repository) insertToUserFavs(userId, favId string) error {
 	insertStatement := `INSERT INTO user_favs (user_id, fav_id) VALUES ($1, $2);`
 

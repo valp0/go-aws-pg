@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GetUser fetches a user by its id.
+// GetUser will fetch a user, given its id.
 func (h handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	w.Header().Set("Content-Type", "application/json")
@@ -18,7 +18,7 @@ func (h handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	claims := token.CustomClaims.(*CustomClaims)
 	if !claims.HasScope("read:users") {
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message":"Insufficient scope."}`))
+		writeResponse(w, "Insufficient scope.")
 		return
 	}
 

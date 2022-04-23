@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// UpdateUser is the handler to update users via a PATCH request.
+// UpdateUser will update user data via a PATCH request.
 func (h handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	bodyDecoder := json.NewDecoder(r.Body)
@@ -20,7 +20,7 @@ func (h handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	claims := token.CustomClaims.(*CustomClaims)
 	if !claims.HasScope("read:users") || !claims.HasScope("write:users") {
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message":"Insufficient scope."}`))
+		writeResponse(w, "Insufficient scope.")
 		return
 	}
 

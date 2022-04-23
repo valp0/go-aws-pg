@@ -8,7 +8,7 @@ type repository struct {
 
 var repo repository
 
-// Returns a local repository to handle local database.
+// Returns a local repository to handle a database.
 func GetRepo() (repository, error) {
 	if repo.db == nil {
 		db, err := connectDB()

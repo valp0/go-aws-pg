@@ -6,6 +6,8 @@ import (
 	"github.com/valp0/go-aws-pg/repo"
 )
 
+// DeleteFavorite is the service function that will call the repository function to
+// delete a favorite after validating both the given user id and video id are valid.
 func (s service) DeleteFavorite(userId, vidId string) ([]repo.Favorite, error) {
 	if !validateUserId(userId) {
 		return nil, fmt.Errorf("id can only have between 5 and 12 characters and can only contain letters, numbers and underscores")

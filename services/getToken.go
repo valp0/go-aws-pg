@@ -28,6 +28,8 @@ type Client struct {
 
 var clients map[string]Client = make(map[string]Client)
 
+// GetToken is the service function to get a JWT from Auth0
+// using valid client id, client secret and audience fields.
 func (s service) GetToken(decoder *json.Decoder) (*Client, error) {
 	var currReq Req
 	err := decoder.Decode(&currReq)
@@ -37,7 +39,7 @@ func (s service) GetToken(decoder *json.Decoder) (*Client, error) {
 
 	if client, present := clients[currReq.ClientId]; present {
 		newExpires := time.Now().UnixMilli()/1000 - client.TimeRequested.UnixMilli()/1000
-		if newExpires < int64(client.Expires) {
+		if newExpires < int64(client.Expires)-10 {
 			client.Expires = int64(client.Expires - newExpires)
 			return &client, nil
 		}
@@ -74,12 +76,4 @@ func (s service) GetToken(decoder *json.Decoder) (*Client, error) {
 	clients[currReq.ClientId] = newClient
 
 	return &newClient, nil
-
-	// response, err := json.Marshal(newClient)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// log.Println(string(response))
-	// return response, nil
 }

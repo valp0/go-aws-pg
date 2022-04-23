@@ -14,3 +14,8 @@ type Items struct {
 type Message struct {
 	Message interface{} `json:"message"`
 }
+
+// Used for the token_details response when /auth/get-token/ is callen.
+type Token struct {
+	TokenDetails interface{} `json:"token_details"`
+}

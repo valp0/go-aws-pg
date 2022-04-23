@@ -8,7 +8,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// DeleteUser will delete a user from the users and the user_favs tables, given its id.
+// DeleteUser will delete a user from the users and the user_favs tables, given its id. This
+// will also cause the deletion of any favorites related to this user from the user_favs table.
 func (h handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	w.Header().Set("Content-Type", "application/json")
@@ -18,7 +19,7 @@ func (h handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	claims := token.CustomClaims.(*CustomClaims)
 	if !claims.HasScope("read:users") || !claims.HasScope("write:users") || !claims.HasScope("write:favorites") {
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message":"Insufficient scope."}`))
+		writeResponse(w, "Insufficient scope.")
 		return
 	}
 

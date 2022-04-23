@@ -7,7 +7,7 @@ import (
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
-// GetUsers fetches all users in the users table.
+// GetUsers will fetch all users in the users table.
 func (h handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -16,7 +16,7 @@ func (h handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	claims := token.CustomClaims.(*CustomClaims)
 	if !claims.HasScope("read:users") {
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message":"Insufficient scope."}`))
+		writeResponse(w, "Insufficient scope.")
 		return
 	}
 

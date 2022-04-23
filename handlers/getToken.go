@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// GetToken will respond with the currently valid token and its remaining time.
+// GetToken will respond with the currently valid token and its remaining valid time.
 func (h handler) GetToken(w http.ResponseWriter, r *http.Request) {
 	bodyDecoder := json.NewDecoder(r.Body)
 
@@ -22,5 +22,5 @@ func (h handler) GetToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	writeResponse(w, &token)
+	writeResponse(w, *token)
 }

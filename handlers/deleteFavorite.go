@@ -8,6 +8,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// DeleteFavorite deletes a favorite from the user_favs table, then checks if it is still
+// linked to another user after deletion and deletes it from the favorites table if not.
 func (h handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	vidId := mux.Vars(r)["vidId"]
@@ -18,7 +20,7 @@ func (h handler) DeleteFavorite(w http.ResponseWriter, r *http.Request) {
 	claims := token.CustomClaims.(*CustomClaims)
 	if !claims.HasScope("read:favorites") || !claims.HasScope("write:favorites") {
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message":"Insufficient scope."}`))
+		writeResponse(w, "Insufficient scope.")
 		return
 	}
 

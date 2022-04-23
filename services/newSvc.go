@@ -38,6 +38,7 @@ type pinger interface {
 	Ping() error
 }
 
+// NewService will return a service to handle service functions, given a repository.
 func NewService(r servicer) service {
 	return service{r}
 }

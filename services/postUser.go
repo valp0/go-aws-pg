@@ -7,7 +7,8 @@ import (
 	"github.com/valp0/go-aws-pg/repo"
 )
 
-// Will insert a user with the received data.
+// PostUser is the service function that will call the repository function to insert
+// a user with the received data after validating the received user name and id.
 func (s service) PostUser(decoder *json.Decoder) ([]repo.User, error) {
 	var user repo.User
 	err := decoder.Decode(&user)

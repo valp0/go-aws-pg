@@ -14,6 +14,8 @@ import (
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
+/*--------------- FROM AUTH0 Documentation ---------------*/
+
 // CustomClaims contains custom data we want from the token.
 type CustomClaims struct {
 	Scope string `json:"scope"`

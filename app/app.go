@@ -59,6 +59,7 @@ func RunServer() error {
 	return nil
 }
 
+// Graceful shutdown.
 func logExit(c chan os.Signal) {
 	repo, _ := repo.GetRepo()
 	for range c {
@@ -70,7 +71,7 @@ func logExit(c chan os.Signal) {
 	}
 }
 
+// Wrapper function to check JWT.
 func checkToken(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-
 	return handlers.CheckToken()(http.HandlerFunc(f)).ServeHTTP
 }

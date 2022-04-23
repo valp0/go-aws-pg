@@ -7,7 +7,8 @@ import (
 	"github.com/valp0/go-aws-pg/repo"
 )
 
-// UpdateUser will update the user with received id using received data.
+// UpdateUser is the service function that will call the repository function to update
+// the user with received id using received data after validating user id and content are valid.
 func (s service) UpdateUser(id string, decoder *json.Decoder) ([]repo.User, error) {
 	var user repo.User
 

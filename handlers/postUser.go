@@ -8,7 +8,7 @@ import (
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
-// PostUser will respond with the user if it was successfully inserted, or a message if not.
+// PostUser will post a user to the users table.
 func (h handler) PostUser(w http.ResponseWriter, r *http.Request) {
 	bodyDecoder := json.NewDecoder(r.Body)
 	w.Header().Set("Content-Type", "application/json")
@@ -18,7 +18,7 @@ func (h handler) PostUser(w http.ResponseWriter, r *http.Request) {
 	claims := token.CustomClaims.(*CustomClaims)
 	if !claims.HasScope("read:users") || !claims.HasScope("write:users") {
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message":"Insufficient scope."}`))
+		writeResponse(w, "Insufficient scope.")
 		return
 	}
 
