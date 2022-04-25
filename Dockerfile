@@ -4,11 +4,8 @@ FROM golang:1.17-alpine
 
 WORKDIR /go-aws-pg
 
-COPY go.mod ./
-COPY go.sum ./
+COPY . ./
 RUN go mod download
-
-COPY * ./
 
 RUN go build -o /go-aws-pg
 
