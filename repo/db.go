@@ -4,22 +4,27 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
 	_ "github.com/lib/pq"
 )
 
-const (
-	dbName = "postgres"
-	dbUser = "iampg"
-	dbHost = "rds-postgresql-test.clmnif2sowhb.us-east-1.rds.amazonaws.com"
-	dbPort = 5432
-	region = "us-east-1"
-)
-
 // Creates a connection to a PostgreSQL database using the global constants.
 func connectDB() (*sql.DB, error) {
+
+	var (
+		dbName string = os.Getenv("AWS_DB_NAME")
+		dbUser string = os.Getenv("AWS_DB_USER")
+		dbHost string = os.Getenv("AWS_DB_HOST")
+		port   string = os.Getenv("AWS_DB_PORT")
+		region string = os.Getenv("AWS_REGION")
+	)
+
+	dbPort, _ := strconv.Atoi(port)
+
 	var dbEndpoint string = fmt.Sprintf("%s:%d", dbHost, dbPort)
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
