@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/valp0/go-aws-pg/handlers"
@@ -52,9 +54,12 @@ func RunServer() error {
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 
 	log.Printf("Listening on port %d\n", port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
-		return err
-	}
+
+	lambda.Start(httpadapter.NewV2(router).ProxyWithContext)
+
+	// if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
