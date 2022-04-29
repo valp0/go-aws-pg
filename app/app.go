@@ -55,11 +55,10 @@ func RunServer() error {
 
 	log.Printf("Listening on port %d\n", port)
 
+	// This line starts the server with all routes inside the lambda environment.
+	// API Gateway has to be configured as proxy in order for the API to work.
+	// Also serverlessish ECR image is needed for it to work (see Dockerfile).
 	lambda.Start(httpadapter.NewV2(router).ProxyWithContext)
-
-	// if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
-	// 	return err
-	// }
 
 	return nil
 }
